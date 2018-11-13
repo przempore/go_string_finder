@@ -13,13 +13,13 @@ func usage() string {
 	return fmt.Sprintf("%s -path=<path/to/file> -find=<string to find>", file)
 }
 
-const unknown = "unknown"
-
 const (
-	success = iota
-	to_few_arguments = iota
-	path_not_specified = iota
-	find_not_specified = iota
+	unknown             = "unknown"
+	success             = iota
+	to_few_arguments    = iota
+	path_not_specified  = iota
+	find_not_specified  = iota
+	cant_read_from_file = iota
 )
 
 func main() {
@@ -41,13 +41,17 @@ func main() {
 		os.Exit(find_not_specified)
 	}
 
-	data, err := GetFileData(path)
-	result := FindString(data, string_to_find)
-	if err != nil {
-		os.Exit(5)
-	}
+	r := Reader{}
 
-	PrintFileContent(data)
+	err := r.GetFileData(path)
+	if err != nil {
+		os.Exit(cant_read_from_file)
+	}
+	r.PrintFileContent()
+
+	result := r.FindString(string_to_find)
 	fmt.Printf("'%s' found in:\n", *string_to_find)
 	fmt.Println(result)
+
+	os.Exit(success)
 }

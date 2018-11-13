@@ -20,8 +20,11 @@ func Test_ToFewArguments(t *testing.T) {
 	_, got_err := GetFileData(args)
 	want_err := errors.New("To few arguments.")
 
-
 	if got_err != want_err {
 		t.Errorf("got '%s' want '%s'", got_err, want_err)
 	}
+}
+
+func Test_FindString(t *testing.T) {
+
 }

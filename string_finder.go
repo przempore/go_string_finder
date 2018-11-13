@@ -5,25 +5,33 @@ import (
 	"io/ioutil"
 )
 
-func GetFileData(file_path *string) ([]byte, error) {
+type Reader struct {
+	DataInString []string
+}
+
+func (r Reader) GetFileData(file_path *string) error {
 	data, err := ioutil.ReadFile(*file_path)
 	if err != nil {
 		fmt.Println("Can't read file:", file_path)
-		panic(err)
+		return err
 	}
-	return data, nil
+
+	for _, element := range data {
+		r.DataInString = append(r.DataInString, string(element))
+	}
+
+	return nil
 }
 
-func PrintFileContent(data []byte) {
+func (r Reader) PrintFileContent() {
 	fmt.Println("File content is:")
-	fmt.Println(string(data))
+	fmt.Println(r.DataInString)
 }
 
-func FindString(bytes []byte, string_to_find *string) string {
+func (r Reader) FindString(string_to_find *string) string {
 
 	return "empty"
 }
-
 
 func Hello() string {
 	return "Hello, world"
