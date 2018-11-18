@@ -45,20 +45,15 @@ func (r *Reader) PrintFileContent() {
 }
 
 func (r *Reader) FindString(stringToFind *string) []string {
-	maxLength := getMaxLength(r.DataInLines)
+	maxLength := getMaxLength(&r.DataInLines)
 
 	words := make([][]string, maxLength)
 	var retSlice []string
 	for ln, l := range r.DataInLines {
-		if strings.Contains(strings.ToLower(l), strings.ToLower(*stringToFind)) {
-			x := strings.Index(strings.ToLower(l), *stringToFind)
-			if x >= len(l) {
-				continue
-			}
-			stringToFindLength := len(*stringToFind)
-			newLine := l[:x] + " >>>> " + *stringToFind + " <<<<" + l[x+stringToFindLength:]
-			//fmt.Fprintf(os.Stderr, "%s\n", newLine)
-			retSlice = append(retSlice, newLine)
+		x := r.findInLine(&l, stringToFind, &retSlice)
+		for x != -1 {
+			whatsLeft := l[x+len(*stringToFind):]
+			x = r.findInLine(&whatsLeft, stringToFind, &retSlice)
 		}
 		line := strings.Fields(l)
 		words[ln] = make([]string, len(line))
@@ -70,9 +65,21 @@ func (r *Reader) FindString(stringToFind *string) []string {
 	return retSlice
 }
 
-func getMaxLength(dataInLines []string) int {
+func (r *Reader) findInLine(l *string, stringToFind *string, retSlice *[]string) int {
+	x := -1
+	if strings.Contains(strings.ToLower(*l), strings.ToLower(*stringToFind)) {
+		x = strings.Index(strings.ToLower(*l), *stringToFind)
+		stringToFindLength := len(*stringToFind)
+		newLine := (*l)[:x] + " >>>> " + *stringToFind + " <<<<" + (*l)[x+stringToFindLength:]
+		//fmt.Fprintf(os.Stderr, "%s\n", newLine)
+		*retSlice = append(*retSlice, newLine)
+	}
+	return x
+}
+
+func getMaxLength(dataInLines *[]string) int {
 	maxLength := 0
-	for _, l := range dataInLines {
+	for _, l := range *dataInLines {
 		words := strings.Fields(l)
 		length := len(words)
 		if length > maxLength {
