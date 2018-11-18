@@ -26,32 +26,38 @@ func (r *Reader) GetFileData(file_path *string) error {
 	if err != nil {
 		log.Fatal(err)
 	}
+	lines := strings.Split(r.DataInRawString, "\n")
+	for _, l := range lines {
+		if l == "" {
+			continue
+		}
+		r.DataInLines = append(r.DataInLines, l)
+	}
+
 	r.DataInString = reg.ReplaceAllString(string(data), " ")
 
 	return nil
 }
 
 func (r *Reader) PrintFileContent() {
-	//fmt.Println("File content is:")
-	//fmt.Println(r.DataInRawString)
+	fmt.Println("File content is:")
+	fmt.Println(r.DataInRawString)
 }
 
 func (r *Reader) FindString(string_to_find *string) string {
-	tmp := strings.Split(r.DataInString, "\n")
-	fmt.Println(tmp)
-
-	fmt.Printf("lines: %d\nWhich is:\n", len(r.DataInLines))
+	maxLenght := 0
 	for _, l := range r.DataInLines {
-		fmt.Println(l)
+		words := strings.Fields(l)
+		length := len(words)
+		if length > maxLenght {
+			maxLenght = length
+		}
 	}
-
-	fmt.Println("the end of lines")
-
-	words := make([][]string, len(r.DataInLines))
+	words := make([][]string, maxLenght)
 	for ln, l := range r.DataInLines {
 		wordsInLine := strings.Fields(l)
 		words[ln] = make([]string, len(wordsInLine))
-		for wn, w := range words[ln] {
+		for wn, w := range wordsInLine {
 			words[ln][wn] = w
 		}
 	}
