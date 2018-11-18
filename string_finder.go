@@ -50,11 +50,18 @@ func (r *Reader) FindString(stringToFind *string) []string {
 	words := make([][]string, maxLength)
 	var retSlice []string
 	for ln, l := range r.DataInLines {
-		x := r.findInLine(&l, stringToFind, &retSlice)
+		var modifiedLine string
+		x := r.findInLine(&l, stringToFind, &modifiedLine)
+		whatsLeft := l[x+len(*stringToFind):]
 		for x != -1 {
-			whatsLeft := l[x+len(*stringToFind):]
-			x = r.findInLine(&whatsLeft, stringToFind, &retSlice)
+			if x < len(whatsLeft) {
+				whatsLeft = whatsLeft[x+len(*stringToFind):]
+				x = r.findInLine(&whatsLeft, stringToFind, &modifiedLine)
+			} else {
+				x = -1
+			}
 		}
+		retSlice = append(retSlice, modifiedLine)
 		line := strings.Fields(l)
 		words[ln] = make([]string, len(line))
 		for wn, w := range line {
@@ -65,14 +72,15 @@ func (r *Reader) FindString(stringToFind *string) []string {
 	return retSlice
 }
 
-func (r *Reader) findInLine(l *string, stringToFind *string, retSlice *[]string) int {
+func (r *Reader) findInLine(l *string, stringToFind *string, modifiedLine *string) int {
 	x := -1
 	if strings.Contains(strings.ToLower(*l), strings.ToLower(*stringToFind)) {
 		x = strings.Index(strings.ToLower(*l), *stringToFind)
 		stringToFindLength := len(*stringToFind)
 		newLine := (*l)[:x] + " >>>> " + *stringToFind + " <<<<" + (*l)[x+stringToFindLength:]
+		fmt.Println(newLine)
 		//fmt.Fprintf(os.Stderr, "%s\n", newLine)
-		*retSlice = append(*retSlice, newLine)
+		*modifiedLine = *modifiedLine + newLine
 	}
 	return x
 }
