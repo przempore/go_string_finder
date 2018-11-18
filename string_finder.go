@@ -44,33 +44,42 @@ func (r *Reader) PrintFileContent() {
 	fmt.Println(r.DataInRawString)
 }
 
-func (r *Reader) FindString(string_to_find *string) string {
-	maxLenght := 0
-	for _, l := range r.DataInLines {
-		words := strings.Fields(l)
-		length := len(words)
-		if length > maxLenght {
-			maxLenght = length
-		}
-	}
-	words := make([][]string, maxLenght)
+func (r *Reader) FindString(stringToFind *string) []string {
+	maxLength := getMaxLength(r.DataInLines)
+
+	words := make([][]string, maxLength)
+	var retSlice []string
 	for ln, l := range r.DataInLines {
-		wordsInLine := strings.Fields(l)
-		words[ln] = make([]string, len(wordsInLine))
-		for wn, w := range wordsInLine {
+		if strings.Contains(strings.ToLower(l), strings.ToLower(*stringToFind)) {
+			x := strings.Index(strings.ToLower(l), *stringToFind)
+			if x >= len(l) {
+				continue
+			}
+			stringToFindLength := len(*stringToFind)
+			newLine := l[:x] + " >>>> " + *stringToFind + " <<<<" + l[x+stringToFindLength:]
+			//fmt.Fprintf(os.Stderr, "%s\n", newLine)
+			retSlice = append(retSlice, newLine)
+		}
+		line := strings.Fields(l)
+		words[ln] = make([]string, len(line))
+		for wn, w := range line {
 			words[ln][wn] = w
 		}
 	}
 
-	fmt.Println("-------------------------------- words --------------------------------")
-	fmt.Println(words)
-	fmt.Println("-------------------------------- words --------------------------------")
+	return retSlice
+}
 
-	for _, w := range words {
-		fmt.Println(w)
+func getMaxLength(dataInLines []string) int {
+	maxLength := 0
+	for _, l := range dataInLines {
+		words := strings.Fields(l)
+		length := len(words)
+		if length > maxLength {
+			maxLength = length
+		}
 	}
-
-	return "Hello, world"
+	return maxLength
 }
 
 func Hello() string {

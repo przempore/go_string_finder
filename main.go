@@ -14,12 +14,12 @@ func usage() string {
 }
 
 const (
-	unknown             = "unknown"
-	success             = iota
-	to_few_arguments    = iota
-	path_not_specified  = iota
-	find_not_specified  = iota
-	cant_read_from_file = iota
+	unknown                = "unknown"
+	success                = iota
+	to_few_arguments       = iota
+	path_arg_not_specified = iota
+	find_arg_not_specified = iota
+	cant_read_from_file    = iota
 )
 
 func main() {
@@ -35,10 +35,10 @@ func main() {
 	switch {
 	case *path == unknown:
 		fmt.Println("You have to specify flag -path")
-		os.Exit(path_not_specified)
+		os.Exit(path_arg_not_specified)
 	case *string_to_find == unknown:
 		fmt.Println("You have to specify flag -find")
-		os.Exit(find_not_specified)
+		os.Exit(find_arg_not_specified)
 	}
 
 	r := Reader{}
@@ -47,11 +47,12 @@ func main() {
 	if err != nil {
 		os.Exit(cant_read_from_file)
 	}
-	r.PrintFileContent()
 
 	result := r.FindString(string_to_find)
 	fmt.Printf("'%s' found in:\n", *string_to_find)
-	fmt.Println(result)
+	for _, r := range result {
+		fmt.Println(r)
+	}
 
 	os.Exit(success)
 }
